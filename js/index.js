@@ -1,5 +1,3 @@
-var apiURL = typeof (apiURL) == 'undefined' ? 'http://localhost:8080/' : apiURL
-
 function getInterval(timestamp, minutes_per_interval) {
   return Math.floor(timestamp / 3600 * (60 / minutes_per_interval))
 }
@@ -27,7 +25,7 @@ var app = new Vue({
   methods: {
     fetchQueriesIncremental: function () {
       var self = this
-      $.get(apiURL + 'questioncache?highWater=' + self.highWater, function (data) {
+      $.get('/questioncache?highWater=' + self.highWater, function (data) {
         // the second check is a rough way to drop the data if we keep getting the whole list
         // which would happen if the server does not support the highWater parameter
         if (data.items.length > 0 && data.items.length != self.queries.length) {
@@ -39,7 +37,7 @@ var app = new Vue({
     },
     fetchQueries: function () {
       var self = this
-      $.get(apiURL + 'questioncache', function (data) {
+      $.get('/questioncache', function (data) {
         data.items.reverse()
         self.queries = data.items
         self.generateStats()
@@ -47,7 +45,7 @@ var app = new Vue({
     },
     fetchDomains: function () {
       var self = this
-      $.get(apiURL + 'blockcache/length', function (data) {
+      $.get('/blockcache/length', function (data) {
         self.numDomains = data.length
       })
     },
@@ -176,13 +174,13 @@ var app = new Vue({
       self.loadingText = "clearing cache..."
       self.loading = true
       $('#chart').hide()
-      $.get(apiURL + 'questioncache/clear', function (data) {
+      $.get('/questioncache/clear', function (data) {
         self.fetchQueries()
       })
     },
     getActive: function () {
       var self = this
-      $.get(apiURL + 'application/active', function (data) {
+      $.get('/application/active', function (data) {
         self.active = data.active
       })
     },
@@ -190,7 +188,7 @@ var app = new Vue({
       var self = this
       state = state ? "On" : "Off"
       $.ajax({
-        url: apiURL + 'application/active?v=1&state=' + state,
+        url: '/application/active?v=1&state=' + state,
         type: 'PUT',
         success: function (data) {
           self.active = data.active
@@ -200,7 +198,7 @@ var app = new Vue({
     snooze: function () {
       var self = this
       $.ajax({
-        url: apiURL + 'application/active?v=1&state=Snooze&timeout=' + self.timeout,
+        url: '/application/active?v=1&state=Snooze&timeout=' + self.timeout,
         type: 'PUT',
         success: function (data) {
           self.active = data.active
@@ -210,7 +208,7 @@ var app = new Vue({
     reload_config: function () {
       var self = this
       $.ajax({
-        url: apiURL + 'blocklist/update',
+        url: '/blocklist/update',
         type: 'POST',
       })
     },
